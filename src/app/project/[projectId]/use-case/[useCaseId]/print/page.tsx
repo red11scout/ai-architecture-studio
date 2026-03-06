@@ -1,29 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useProject } from "../../../layout";
-
-const PRD_SECTIONS: Record<string, string> = {
-  executiveSummary: "Executive Summary",
-  problemStatement: "Problem Statement",
-  proposedSolution: "Proposed Solution",
-  userStories: "User Stories",
-  technicalRequirements: "Technical Requirements",
-  aiModelSpecifications: "AI Model Specifications",
-  hitlRequirements: "Human-in-the-Loop Requirements",
-  successMetrics: "Success Metrics",
-  risksAndMitigations: "Risks & Mitigations",
-  implementationTimeline: "Implementation Timeline",
-};
-
-function formatCurrency(val: any): string {
-  if (!val) return "—";
-  if (typeof val === "string") return val;
-  if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
-  if (val >= 1_000) return `$${(val / 1_000).toFixed(0)}K`;
-  return `$${val.toFixed(0)}`;
-}
+import { SECTION_MAP, getSectionContent } from "@/lib/prd-sections";
+import { MermaidDiagram } from "@/components/diagrams/mermaid-diagram";
+import { generateSystemArchitecture } from "@/lib/diagrams/system-architecture-engine";
+import { generateAgenticWorkflow } from "@/lib/diagrams/agentic-workflow-engine";
+import { generateDataGovernance } from "@/lib/diagrams/data-governance-engine";
 
 export default function PrintPage() {
   const params = useParams<{ projectId: string; useCaseId: string }>();
@@ -34,13 +18,40 @@ export default function PrintPage() {
   ) as any;
 
   const prd = arch?.prdContent;
-  const fi = arch?.financialImpact as any;
   const sa = arch?.systemArchitecture as any;
   const gov = arch?.governanceModel as any;
 
+  // Generate diagrams from stored data
+  const systemDiagram = useMemo(() => {
+    if (!arch?.systemArchitecture) return null;
+    try {
+      return generateSystemArchitecture(arch.systemArchitecture);
+    } catch {
+      return null;
+    }
+  }, [arch?.systemArchitecture]);
+
+  const agenticDiagram = useMemo(() => {
+    if (!arch?.agenticWorkflow) return null;
+    try {
+      return generateAgenticWorkflow(arch.agenticWorkflow);
+    } catch {
+      return null;
+    }
+  }, [arch?.agenticWorkflow]);
+
+  const dataGovDiagram = useMemo(() => {
+    if (!arch?.dataArchitecture || !arch?.governanceModel) return null;
+    try {
+      return generateDataGovernance(arch.dataArchitecture, arch.governanceModel);
+    } catch {
+      return null;
+    }
+  }, [arch?.dataArchitecture, arch?.governanceModel]);
+
   useEffect(() => {
-    // Auto-trigger print dialog after brief render delay
-    const timer = setTimeout(() => window.print(), 500);
+    // Increased delay to allow Mermaid diagrams to render before print dialog
+    const timer = setTimeout(() => window.print(), 1500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -55,6 +66,7 @@ export default function PrintPage() {
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .no-print { display: none !important; }
           .page-break { page-break-before: always; }
+          .mermaid-diagram svg { max-width: 100% !important; height: auto !important; }
         }
         @page { margin: 0.75in; size: letter; }
       `}</style>
@@ -75,6 +87,18 @@ export default function PrintPage() {
           <p className="text-blue-200 text-sm">
             {project.companyName} &middot; {project.industry}
           </p>
+          <div className="flex gap-4 mt-4 text-sm">
+            {sa?.pattern && (
+              <span className="bg-white/15 rounded px-2 py-0.5">
+                {sa.pattern.replace(/_/g, " ")}
+              </span>
+            )}
+            {arch.implementationPhase && (
+              <span className="bg-white/15 rounded px-2 py-0.5">
+                {arch.implementationPhase}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Back button (screen only) */}
@@ -84,60 +108,6 @@ export default function PrintPage() {
         >
           &larr; Back to use case
         </button>
-
-        {/* Financial summary */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <div className="border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Annual Value</p>
-            <p className="text-xl font-bold text-[#36bf78] mt-1">
-              {formatCurrency(fi?.benefit?.totalAnnualValue)}
-            </p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Pattern</p>
-            <p className="text-sm font-semibold mt-1">
-              {(sa?.pattern || "—").replace(/_/g, " ")}
-            </p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Priority</p>
-            <p className="text-sm font-semibold mt-1">
-              {fi?.priority?.priorityTier || "—"}
-            </p>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wider">Phase</p>
-            <p className="text-sm font-semibold mt-1">
-              {arch.implementationPhase || "—"}
-            </p>
-          </div>
-        </div>
-
-        {/* Financial detail */}
-        {fi?.benefit && (
-          <div className="mb-8">
-            <h2 className="text-lg font-bold text-[#001278] mb-3">Financial Impact</h2>
-            <table className="w-full text-sm border-collapse">
-              <tbody>
-                {[
-                  ["Cost Savings", fi.benefit.costBenefit],
-                  ["Revenue Growth", fi.benefit.revenueBenefit],
-                  ["Risk Reduction", fi.benefit.riskBenefit],
-                  ["Cash Flow Improvement", fi.benefit.cashFlowBenefit],
-                  ["Probability of Success", fi.benefit.probabilityOfSuccess ? `${(fi.benefit.probabilityOfSuccess * 100).toFixed(0)}%` : null],
-                  ["Readiness Score", fi.readiness?.readinessScore ? `${fi.readiness.readinessScore.toFixed(1)}/10` : null],
-                ].map(([label, val]) =>
-                  val ? (
-                    <tr key={String(label)} className="border-b border-gray-100">
-                      <td className="py-2 text-gray-600">{label}</td>
-                      <td className="py-2 text-right font-semibold">{formatCurrency(val)}</td>
-                    </tr>
-                  ) : null
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
 
         {/* Governance summary */}
         {(gov?.hitlCheckpoint || gov?.epochFlags) && (
@@ -154,6 +124,58 @@ export default function PrintPage() {
           </div>
         )}
 
+        {/* Architecture Diagrams */}
+        {(systemDiagram || agenticDiagram || dataGovDiagram) && (
+          <>
+            <div className="page-break" />
+            <h2 className="text-xl font-bold text-[#001278] mb-6 mt-8">
+              Architecture Diagrams
+            </h2>
+
+            {systemDiagram?.mermaidCode && (
+              <div className="mb-8">
+                <h3 className="text-base font-bold text-[#001278] mb-3 border-b border-[#02a2fd]/30 pb-1">
+                  System Architecture
+                </h3>
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                  <MermaidDiagram
+                    code={systemDiagram.mermaidCode}
+                    id="print-system"
+                  />
+                </div>
+              </div>
+            )}
+
+            {agenticDiagram?.mermaidCode && (
+              <div className="mb-8 page-break">
+                <h3 className="text-base font-bold text-[#001278] mb-3 border-b border-[#02a2fd]/30 pb-1">
+                  Agentic Workflow
+                </h3>
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                  <MermaidDiagram
+                    code={agenticDiagram.mermaidCode}
+                    id="print-agentic"
+                  />
+                </div>
+              </div>
+            )}
+
+            {dataGovDiagram?.mermaidCode && (
+              <div className="mb-8 page-break">
+                <h3 className="text-base font-bold text-[#001278] mb-3 border-b border-[#02a2fd]/30 pb-1">
+                  Data &amp; Governance Pipeline
+                </h3>
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                  <MermaidDiagram
+                    code={dataGovDiagram.mermaidCode}
+                    id="print-datagov"
+                  />
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         {/* PRD sections */}
         {prd && (
           <>
@@ -161,13 +183,13 @@ export default function PrintPage() {
             <h2 className="text-xl font-bold text-[#001278] mb-4 mt-8">
               Product Requirements Document
             </h2>
-            {Object.entries(PRD_SECTIONS).map(([key, label]) => {
-              const content = prd[key];
+            {SECTION_MAP.map((section) => {
+              const content = getSectionContent(prd, section);
               if (!content) return null;
               return (
-                <div key={key} className="mb-6">
+                <div key={section.key} className="mb-6">
                   <h3 className="text-base font-bold text-[#001278] mb-2 border-b border-[#02a2fd]/30 pb-1">
-                    {label}
+                    {section.label}
                   </h3>
                   <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                     {content}

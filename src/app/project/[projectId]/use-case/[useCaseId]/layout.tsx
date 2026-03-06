@@ -3,8 +3,7 @@
 import { useState, useCallback } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import {
-  Layers, GitBranch, ShieldCheck,
-  DollarSign, FileText, CalendarDays,
+  Layers, GitBranch, ShieldCheck, FileText,
   Download, Share2, FileJson, Printer, Link2, Check, Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,9 +15,7 @@ const tabs = [
   { label: "Architecture", href: "/architecture", icon: Layers },
   { label: "Workflow", href: "/workflow", icon: GitBranch },
   { label: "Data & Governance", href: "/data-governance", icon: ShieldCheck },
-  { label: "Financial", href: "/financial", icon: DollarSign },
   { label: "PRD", href: "/prd", icon: FileText },
-  { label: "Roadmap", href: "/roadmap", icon: CalendarDays },
 ];
 
 export default function UseCaseLayout({

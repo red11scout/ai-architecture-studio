@@ -303,16 +303,25 @@ export interface CanvasData {
 // PRD types
 // ---------------------------------------------------------------------------
 export interface PRDContent {
+  // New 12-section format
   executiveSummary: string;
   problemStatement: string;
-  proposedSolution: string;
-  userStories: string;
-  technicalRequirements: string;
+  solutionArchitecture: string;
+  dataStrategy: string;
   aiModelSpecifications: string;
-  hitlRequirements: string;
+  userStoriesAcceptanceCriteria: string;
+  apiIntegrationSpecs: string;
+  guardrailsSafety: string;
+  evaluationFramework: string;
+  implementationRoadmap: string;
   successMetrics: string;
   risksAndMitigations: string;
-  implementationTimeline: string;
+  // Legacy fields for backward compat with old PRDs
+  proposedSolution?: string;
+  userStories?: string;
+  technicalRequirements?: string;
+  hitlRequirements?: string;
+  implementationTimeline?: string;
 }
 
 // ---------------------------------------------------------------------------
