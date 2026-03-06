@@ -9,8 +9,7 @@ import {
   type Node,
   type Edge,
   type NodeTypes,
-  useNodesState,
-  useEdgesState,
+  type ReactFlowInstance,
   BackgroundVariant,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -111,9 +110,15 @@ export function DiagramRenderer({
   direction = "LR",
   className,
 }: DiagramRendererProps) {
+  // Compute a stable key from diagram content so React fully remounts
+  // ReactFlow when the diagram changes (guarantees fitView on each layer).
+  const diagramKey = useMemo(
+    () => diagram.nodes.map((n) => n.id).join(","),
+    [diagram],
+  );
+
   // Convert DiagramDefinition nodes to React Flow format with Dagre layout
   const { initialNodes, initialEdges } = useMemo(() => {
-    // Apply dagre auto-layout
     const laidOut = applyDagreLayout(diagram.nodes, diagram.edges, {
       direction,
       nodeWidth: 180,
@@ -122,15 +127,16 @@ export function DiagramRenderer({
       nodeSep: 50,
     });
 
-    // Map to React Flow Node[]
     const rfNodes: Node[] = laidOut.map((n) => ({
       id: n.id,
       type: n.type in nodeTypes ? n.type : "default",
       position: n.position,
       data: { label: n.label, ...n.data },
+      // Explicit dimensions help fitView calculate accurate bounds
+      width: 180,
+      height: 80,
     }));
 
-    // Map to React Flow Edge[]
     const rfEdges: Edge[] = diagram.edges.map((e) => ({
       id: e.id,
       source: e.source,
@@ -144,31 +150,23 @@ export function DiagramRenderer({
     return { initialNodes: rfNodes, initialEdges: rfEdges };
   }, [diagram, direction]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  // Sync when diagram prop changes (e.g. layer switch)
-  useMemo(() => {
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [initialNodes, initialEdges, setNodes, setEdges]);
-
-  const onInit = useCallback(() => {
-    // Could call fitView here if needed via the reactFlowInstance
+  // Fit view after nodes are rendered and measured
+  const onInit = useCallback((instance: ReactFlowInstance) => {
+    // Small delay to allow custom nodes to render and measure
+    setTimeout(() => instance.fitView({ padding: 0.2 }), 100);
   }, []);
 
   return (
     <div className={className ?? "w-full h-[500px] rounded-lg border border-border overflow-hidden"}>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        key={diagramKey}
+        defaultNodes={initialNodes}
+        defaultEdges={initialEdges}
         nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
         onInit={onInit}
         fitView
         fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.3}
+        minZoom={0.1}
         maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
