@@ -18,6 +18,14 @@ const tabs = [
   { label: "PRD", href: "/prd", icon: FileText },
 ];
 
+/** Normalize legacy "Q1"-"Q4" to "Phase 1"-"Phase 4" */
+function normalizePhase(phase: string | null | undefined): string {
+  if (!phase) return "";
+  const qMatch = phase.match(/^Q(\d)$/i);
+  if (qMatch) return `Phase ${qMatch[1]}`;
+  return phase;
+}
+
 export default function UseCaseLayout({
   children,
 }: {
@@ -87,7 +95,7 @@ export default function UseCaseLayout({
               {arch?.useCaseName || "Use Case"}
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {(arch as any)?.implementationPhase || ""}
+              {normalizePhase((arch as any)?.implementationPhase)}
             </p>
           </div>
 

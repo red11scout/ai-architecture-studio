@@ -211,10 +211,10 @@ export function determineQuadrant(
 }
 
 export function determinePhase(priorityScore: number): string {
-  if (priorityScore >= 7) return "Q1";
-  if (priorityScore >= 5.5) return "Q2";
-  if (priorityScore >= 4) return "Q3";
-  return "Q4";
+  if (priorityScore >= 7) return "Phase 1";
+  if (priorityScore >= 5.5) return "Phase 2";
+  if (priorityScore >= 4) return "Phase 3";
+  return "Phase 4";
 }
 
 // -------------------------------------------------------------------------

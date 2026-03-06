@@ -4,6 +4,14 @@ import { projects, architectures } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import ExcelJS from "exceljs";
 
+/** Normalize legacy "Q1"-"Q4" to "Phase 1"-"Phase 4" */
+function normalizePhase(phase: string | null | undefined): string {
+  if (!phase) return "";
+  const qMatch = phase.match(/^Q(\d)$/i);
+  if (qMatch) return `Phase ${qMatch[1]}`;
+  return phase;
+}
+
 function parseCurrency(val: string | number | undefined): number {
   if (!val) return 0;
   if (typeof val === "number") return val;
@@ -87,7 +95,7 @@ export async function GET(
     ucSheet.addRow({
       name: a.useCaseName,
       pattern: sa?.pattern?.replace(/_/g, " ") || "",
-      phase: a.implementationPhase || "",
+      phase: normalizePhase(a.implementationPhase),
       value: fi?.benefit?.totalAnnualValue || "",
       tier: fi?.priority?.priorityTier || "",
       readiness: fi?.readiness?.readinessScore?.toFixed(1) || "",
@@ -178,7 +186,7 @@ export async function GET(
     const p = (a.financialImpact as any)?.priority;
     roadmapSheet.addRow({
       name: a.useCaseName,
-      phase: a.implementationPhase || "",
+      phase: normalizePhase(a.implementationPhase),
       weeks: a.estimatedWeeks || "",
       score: p?.priorityScore?.toFixed(1) || "",
       valueScore: p?.valueScore?.toFixed(1) || "",

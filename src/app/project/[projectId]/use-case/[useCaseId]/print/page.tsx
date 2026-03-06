@@ -9,6 +9,14 @@ import { generateSystemArchitecture } from "@/lib/diagrams/system-architecture-e
 import { generateAgenticWorkflow } from "@/lib/diagrams/agentic-workflow-engine";
 import { generateDataGovernance } from "@/lib/diagrams/data-governance-engine";
 
+/** Normalize legacy "Q1"-"Q4" to "Phase 1"-"Phase 4" */
+function normalizePhase(phase: string | null | undefined): string {
+  if (!phase) return "";
+  const qMatch = phase.match(/^Q(\d)$/i);
+  if (qMatch) return `Phase ${qMatch[1]}`;
+  return phase;
+}
+
 export default function PrintPage() {
   const params = useParams<{ projectId: string; useCaseId: string }>();
   const { project, architectures } = useProject();
@@ -95,7 +103,7 @@ export default function PrintPage() {
             )}
             {arch.implementationPhase && (
               <span className="bg-white/15 rounded px-2 py-0.5">
-                {arch.implementationPhase}
+                {normalizePhase(arch.implementationPhase)}
               </span>
             )}
           </div>

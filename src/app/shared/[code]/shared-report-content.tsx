@@ -7,6 +7,14 @@ import { generateSystemArchitecture } from "@/lib/diagrams/system-architecture-e
 import { generateAgenticWorkflow } from "@/lib/diagrams/agentic-workflow-engine";
 import { generateDataGovernance } from "@/lib/diagrams/data-governance-engine";
 
+/** Normalize legacy "Q1"-"Q4" to "Phase 1"-"Phase 4" */
+function normalizePhase(phase: string | null | undefined): string {
+  if (!phase) return "";
+  const qMatch = phase.match(/^Q(\d)$/i);
+  if (qMatch) return `Phase ${qMatch[1]}`;
+  return phase;
+}
+
 interface SharedProject {
   name: string;
   companyName: string;
@@ -136,11 +144,9 @@ function UseCasePRD({ prd }: { prd: any }) {
 export default function SharedReportContent({
   project,
   architectures,
-  totalValue,
 }: {
   project: SharedProject;
   architectures: SharedArch[];
-  totalValue: string;
 }) {
   return (
     <div className="min-h-screen bg-white text-gray-900">
@@ -174,26 +180,6 @@ export default function SharedReportContent({
       </div>
 
       <div className="max-w-5xl mx-auto px-8 py-10">
-        {/* Summary stats */}
-        <div className="grid grid-cols-3 gap-6 mb-10">
-          <div className="bg-gray-50 rounded-xl p-6">
-            <p className="text-3xl font-bold text-[#001278]">{architectures.length}</p>
-            <p className="text-sm text-gray-500 mt-1">AI Use Cases</p>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-6">
-            <p className="text-3xl font-bold text-[#36bf78]">{totalValue}</p>
-            <p className="text-sm text-gray-500 mt-1">Total Annual Value</p>
-          </div>
-          <div className="bg-gray-50 rounded-xl p-6">
-            <p className="text-3xl font-bold text-[#02a2fd]">
-              {new Set(
-                architectures.map((a) => a.systemArchitecture?.pattern || "")
-              ).size}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">AI Patterns</p>
-          </div>
-        </div>
-
         {/* Per use case */}
         {architectures.map((arch, idx) => {
           const sa = arch.systemArchitecture as any;
@@ -217,7 +203,7 @@ export default function SharedReportContent({
                   )}
                   {arch.implementationPhase && (
                     <span className="bg-[#36bf78]/10 text-[#36bf78] rounded px-2 py-0.5 text-xs font-medium">
-                      {arch.implementationPhase}
+                      {normalizePhase(arch.implementationPhase)}
                     </span>
                   )}
                 </div>

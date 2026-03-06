@@ -4,20 +4,6 @@ import { projects, architectures, shareLinks } from "@/lib/db/schema";
 import { eq, and, gt } from "drizzle-orm";
 import SharedReportContent from "./shared-report-content";
 
-function parseCurrency(val: string | number | undefined): number {
-  if (!val) return 0;
-  if (typeof val === "number") return val;
-  const cleaned = val.replace(/[$,]/g, "");
-  if (cleaned.includes("M")) return parseFloat(cleaned) * 1_000_000;
-  if (cleaned.includes("K")) return parseFloat(cleaned) * 1_000;
-  return parseFloat(cleaned) || 0;
-}
-
-function fmtCurrency(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
-}
 
 export default async function SharedReportPage({
   params,
@@ -61,13 +47,6 @@ export default async function SharedReportPage({
     if (filteredArchs.length === 0) filteredArchs = allArchs; // fallback
   }
 
-  // Calculate totals
-  let totalValue = 0;
-  filteredArchs.forEach((a) => {
-    const fi = a.financialImpact as any;
-    totalValue += parseCurrency(fi?.benefit?.totalAnnualValue);
-  });
-
   // Serialize data for the client component
   const serializedArchs = filteredArchs.map((a) => ({
     id: a.id,
@@ -90,7 +69,6 @@ export default async function SharedReportPage({
         industry: project.industry || "",
       }}
       architectures={serializedArchs}
-      totalValue={totalValue > 0 ? fmtCurrency(totalValue) : "—"}
     />
   );
 }
