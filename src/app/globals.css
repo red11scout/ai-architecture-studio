@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
+/* ============================================================
+   BlueAlly AI Solution Builder — Brand Theming
+   ============================================================
+   Brand colors:
+     Navy:  #001278  (primary dark)
+     Blue:  #02a2fd  (primary accent)
+     Green: #36bf78  (success/positive)
+     Dark:  #0a0e27  (darkest background)
+     Light: #f0f4ff  (lightest background)
+
+   Font: DM Sans (loaded via next/font in layout.tsx)
+   Dark mode: class-based (.dark on <html>), NOT media query
+   Color format: hsl — no oklch()
+   ============================================================ */
+
+/* ----- Light mode (default) ----- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f0f4ff;
+  --foreground: #0a0e27;
+
+  --card: #ffffff;
+  --card-foreground: #0a0e27;
+
+  --popover: #ffffff;
+  --popover-foreground: #0a0e27;
+
+  --primary: #001278;
+  --primary-foreground: #f0f4ff;
+
+  --secondary: #e8eeff;
+  --secondary-foreground: #001278;
+
+  --muted: #e2e8f4;
+  --muted-foreground: #4a5074;
+
+  --accent: #02a2fd;
+  --accent-foreground: #ffffff;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --success: #36bf78;
+  --success-foreground: #ffffff;
+
+  --border: #c8d2e8;
+  --input: #c8d2e8;
+  --ring: #02a2fd;
+
+  --radius: 0.625rem;
+
+  --chart-1: #02a2fd;
+  --chart-2: #36bf78;
+  --chart-3: #001278;
+  --chart-4: #f59e0b;
+  --chart-5: #e5484d;
 }
 
+/* ----- Dark mode ----- */
+.dark {
+  --background: #0a0e27;
+  --foreground: #e8eeff;
+
+  --card: #111638;
+  --card-foreground: #e8eeff;
+
+  --popover: #111638;
+  --popover-foreground: #e8eeff;
+
+  --primary: #02a2fd;
+  --primary-foreground: #0a0e27;
+
+  --secondary: #1a2048;
+  --secondary-foreground: #c8d2e8;
+
+  --muted: #1a2048;
+  --muted-foreground: #8892b0;
+
+  --accent: #02a2fd;
+  --accent-foreground: #0a0e27;
+
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+
+  --success: #36bf78;
+  --success-foreground: #0a0e27;
+
+  --border: #1e2650;
+  --input: #1e2650;
+  --ring: #02a2fd;
+
+  --chart-1: #02a2fd;
+  --chart-2: #36bf78;
+  --chart-3: #6e8efb;
+  --chart-4: #f59e0b;
+  --chart-5: #e5484d;
+}
+
+/* ----- Tailwind v4 theme registration ----- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* BlueAlly brand colors (direct access) */
+  --color-ba-navy: #001278;
+  --color-ba-blue: #02a2fd;
+  --color-ba-green: #36bf78;
+  --color-ba-dark: #0a0e27;
+  --color-ba-light: #f0f4ff;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-dm-sans), "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ----- Base layer ----- */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ----- Theme transition ----- */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Disable transition on page load to prevent flash */
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition-duration: 0ms !important;
 }
