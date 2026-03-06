@@ -20,6 +20,12 @@ interface Architecture {
   financialImpact: any;
   dataArchitecture: any;
   systemArchitecture: any;
+  agenticWorkflow: any;
+  businessValueMap: any;
+  governanceModel: any;
+  canvasData: any;
+  prdContent: any;
+  maturityLevel: number;
 }
 
 interface Project {

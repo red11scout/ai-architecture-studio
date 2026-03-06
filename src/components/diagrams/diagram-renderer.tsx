@@ -144,8 +144,14 @@ export function DiagramRenderer({
     return { initialNodes: rfNodes, initialEdges: rfEdges };
   }, [diagram, direction]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  // Sync when diagram prop changes (e.g. layer switch)
+  useMemo(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   const onInit = useCallback(() => {
     // Could call fitView here if needed via the reactFlowInstance
