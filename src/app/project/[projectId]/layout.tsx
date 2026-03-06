@@ -16,7 +16,10 @@ interface Architecture {
   useCaseId: string;
   useCaseName: string;
   implementationPhase: string | null;
+  estimatedWeeks: number | null;
   financialImpact: any;
+  dataArchitecture: any;
+  systemArchitecture: any;
 }
 
 interface Project {
@@ -26,6 +29,7 @@ interface Project {
   industry: string;
   description: string;
   status: string;
+  rawImport: any;
 }
 
 interface ProjectContextValue {
