@@ -90,9 +90,7 @@ export default function UseCaseLayout({
               {arch?.useCaseName || "Use Case"}
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {(arch as any)?.implementationPhase
-                ? `Phase ${(arch as any).implementationPhase}`
-                : ""}
+              {(arch as any)?.implementationPhase || ""}
             </p>
           </div>
 
