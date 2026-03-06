@@ -2,33 +2,27 @@
 
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
-import {
-  TrendingUp, Cpu, GitBranch, Database, ShieldCheck,
-} from "lucide-react";
+import { Cpu, GitBranch, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useProject } from "../../../layout";
 import { cn } from "@/lib/utils";
-import { generateBusinessValueMap } from "@/lib/diagrams/business-value-engine";
 import { generateSystemArchitecture } from "@/lib/diagrams/system-architecture-engine";
 import { generateAgenticWorkflow } from "@/lib/diagrams/agentic-workflow-engine";
-import { generateDataArchitecture } from "@/lib/diagrams/data-architecture-engine";
-import { generateGovernanceModel } from "@/lib/diagrams/governance-engine";
+import { generateDataGovernance } from "@/lib/diagrams/data-governance-engine";
 import { DiagramRenderer } from "@/components/diagrams/diagram-renderer";
 import type { DiagramDefinition } from "@/lib/types";
 
 const layers = [
-  { id: "business", label: "Business Value", icon: TrendingUp, direction: "LR" as const },
   { id: "system", label: "System Architecture", icon: Cpu, direction: "TB" as const },
   { id: "agentic", label: "Agentic Workflow", icon: GitBranch, direction: "TB" as const },
-  { id: "data", label: "Data Architecture", icon: Database, direction: "LR" as const },
-  { id: "governance", label: "Governance", icon: ShieldCheck, direction: "LR" as const },
+  { id: "data-governance", label: "Data & Governance", icon: ShieldCheck, direction: "LR" as const },
 ];
 
 export default function ArchitecturePage() {
   const params = useParams<{ projectId: string; useCaseId: string }>();
   const { architectures } = useProject();
-  const [activeLayer, setActiveLayer] = useState("business");
+  const [activeLayer, setActiveLayer] = useState("system");
 
   const arch = architectures.find(
     (a) => a.useCaseId === params.useCaseId
@@ -38,16 +32,12 @@ export default function ArchitecturePage() {
     if (!arch) return null;
     try {
       switch (activeLayer) {
-        case "business":
-          return generateBusinessValueMap(arch.businessValueMap);
         case "system":
           return generateSystemArchitecture(arch.systemArchitecture);
         case "agentic":
           return generateAgenticWorkflow(arch.agenticWorkflow);
-        case "data":
-          return generateDataArchitecture(arch.dataArchitecture);
-        case "governance":
-          return generateGovernanceModel(arch.governanceModel);
+        case "data-governance":
+          return generateDataGovernance(arch.dataArchitecture, arch.governanceModel);
         default:
           return null;
       }

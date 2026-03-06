@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Plus, Trash2, Building2, Layers, ChevronRight } from "lucide-react";
+import { Upload, Plus, Trash2, Building2, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -105,13 +106,24 @@ export default function HomePage() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-[#001278] flex items-center justify-center">
-              <Layers className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-foreground">AI Solution Builder</h1>
-              <p className="text-xs text-muted-foreground">by BlueAlly</p>
-            </div>
+            <Image
+              src="/blueally-logo-blue.png"
+              alt="BlueAlly"
+              width={120}
+              height={38}
+              className="dark:hidden"
+              priority
+            />
+            <Image
+              src="/blueally-logo-white.png"
+              alt="BlueAlly"
+              width={120}
+              height={38}
+              className="hidden dark:block"
+              priority
+            />
+            <div className="h-6 w-px bg-border mx-1" />
+            <span className="text-sm font-semibold text-foreground">AI Solution Builder</span>
           </div>
           <ThemeToggle />
         </div>
