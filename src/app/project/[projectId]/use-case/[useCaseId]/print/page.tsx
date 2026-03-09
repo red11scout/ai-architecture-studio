@@ -101,11 +101,6 @@ export default function PrintPage() {
                 {sa.pattern.replace(/_/g, " ")}
               </span>
             )}
-            {arch.implementationPhase && (
-              <span className="bg-white/15 rounded px-2 py-0.5">
-                {normalizePhase(arch.implementationPhase)}
-              </span>
-            )}
           </div>
         </div>
 

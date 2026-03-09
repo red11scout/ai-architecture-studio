@@ -201,11 +201,6 @@ export default function SharedReportContent({
                       {sa.pattern.replace(/_/g, " ")}
                     </span>
                   )}
-                  {arch.implementationPhase && (
-                    <span className="bg-[#36bf78]/10 text-[#36bf78] rounded px-2 py-0.5 text-xs font-medium">
-                      {normalizePhase(arch.implementationPhase)}
-                    </span>
-                  )}
                 </div>
               </div>
 
