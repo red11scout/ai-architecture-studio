@@ -3,42 +3,61 @@
 import { useEffect, useRef, useState } from "react";
 import mermaid from "mermaid";
 
-let initialized = false;
+let initializedMode: "screen" | "print" | null = null;
 
-function initMermaid() {
-  if (initialized) return;
+function initMermaid(printMode: boolean) {
+  const targetMode = printMode ? "print" : "screen";
+  if (initializedMode === targetMode) return;
+
   mermaid.initialize({
     startOnLoad: false,
     theme: "neutral",
     fontFamily: "DM Sans, sans-serif",
+    themeVariables: {
+      fontFamily: "DM Sans, sans-serif",
+      primaryTextColor: "#0a0e27",
+      lineColor: "#475569",
+    },
     flowchart: {
       htmlLabels: true,
-      useMaxWidth: true,
+      useMaxWidth: !printMode,
+      wrappingWidth: printMode ? 220 : undefined,
       curve: "basis",
+      padding: printMode ? 12 : 8,
     },
     securityLevel: "loose",
   });
-  initialized = true;
+  initializedMode = targetMode;
 }
 
 interface MermaidDiagramProps {
   code: string;
   id: string;
   className?: string;
+  /**
+   * When true, configures Mermaid for fixed-width SVG output suitable for print.
+   * Also enrolls the render Promise in window.__mermaidPending so a parent
+   * print page can await Promise.all() before triggering window.print().
+   */
+  printMode?: boolean;
 }
 
-export function MermaidDiagram({ code, id, className }: MermaidDiagramProps) {
+export function MermaidDiagram({
+  code,
+  id,
+  className,
+  printMode = false,
+}: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!code || !containerRef.current) return;
 
-    initMermaid();
+    initMermaid(printMode);
 
-    const render = async () => {
+    const renderPromise = (async () => {
       try {
-        // Use a unique element ID to avoid collisions
         const elementId = `mermaid-${id}-${Date.now()}`;
         const { svg } = await mermaid.render(elementId, code);
         if (containerRef.current) {
@@ -48,10 +67,14 @@ export function MermaidDiagram({ code, id, className }: MermaidDiagramProps) {
       } catch (e: any) {
         setError(e.message || "Failed to render diagram");
       }
-    };
+    })();
 
-    render();
-  }, [code, id]);
+    if (printMode && typeof window !== "undefined") {
+      const w = window as any;
+      w.__mermaidPending = w.__mermaidPending || [];
+      w.__mermaidPending.push(renderPromise);
+    }
+  }, [code, id, printMode]);
 
   if (error) {
     return (

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { projects, architectures, shareLinks } from "@/lib/db/schema";
-import { eq, and, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import SharedReportContent from "./shared-report-content";
 
 
@@ -16,12 +16,7 @@ export default async function SharedReportPage({
   const [link] = await db
     .select()
     .from(shareLinks)
-    .where(
-      and(
-        eq(shareLinks.shareCode, code),
-        gt(shareLinks.expiresAt, new Date())
-      )
-    );
+    .where(eq(shareLinks.shareCode, code));
 
   if (!link) notFound();
 
