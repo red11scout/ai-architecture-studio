@@ -39,8 +39,7 @@ export async function POST(
   }
 
   const shareCode = nanoid(12);
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30); // 30-day expiry
+  const expiresAt = new Date("2099-12-31T23:59:59Z");
 
   const [link] = await db
     .insert(shareLinks)

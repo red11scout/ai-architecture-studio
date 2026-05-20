@@ -3,7 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import {
-  Box, ArrowLeft, ChevronDown, Building2
+  Box, ArrowLeft, ChevronDown, Building2, FileDown
 } from "lucide-react";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -99,7 +99,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
     >
       <div className="min-h-screen bg-background flex">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-border bg-card flex flex-col">
+        <aside className="no-print w-64 border-r border-border bg-card flex flex-col">
           {/* Logo */}
           <div className="p-4 border-b border-border">
             <button
@@ -163,6 +163,22 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
               )}
             </div>
 
+            {/* Portfolio export */}
+            {architectures.length > 0 && (
+              <div className="pt-6">
+                <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Portfolio
+                </p>
+                <button
+                  onClick={() => window.open(`${basePath}/print`, "_blank")}
+                  title="Best in Chrome — opens print preview for the full portfolio"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-left text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                >
+                  <FileDown className="h-4 w-4 shrink-0 text-[#001278]" />
+                  <span className="truncate">Download Portfolio PDF</span>
+                </button>
+              </div>
+            )}
           </nav>
 
           {/* Footer */}
